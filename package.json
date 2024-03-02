@@ -1,0 +1,28 @@
+{
+  "name": "todo-bot",
+  "version": "1.0.0",
+  "description": "Simple TO-DO discord app.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node .",
+    "build": "tsup src/index.ts --minify",
+    "format": "prettier --write \"**/*.{json,ts}\"",
+    "lint": "eslint . --ext ts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kasparrpetr/todo-bot.git"
+  },
+  "author": "kasparrpetr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kasparrpetr/todo-bot/issues"
+  },
+  "homepage": "https://github.com/kasparrpetr/todo-bot#readme",
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
+}

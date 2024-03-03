@@ -4,12 +4,14 @@ import { deployCommands } from "./deploy-commands";
 import { checkTaskChannel } from "./utils/functions/global-functions";
 import { ActivityType, Client } from "discord.js";
 
-// Create client
+// Create a new client
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "DirectMessages"],
 });
 
-// Ready event
+/**
+ * Event listener for when the bot is ready
+ */
 client.once("ready", (client) => {
   // Get guild id
   let guildId = "";
@@ -29,7 +31,9 @@ client.once("ready", (client) => {
   deployCommands({ guildId: guildId });
 }); 
 
-// Interaction event
+/**
+ * Event listener for when a command is used
+ */
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) {
     return;

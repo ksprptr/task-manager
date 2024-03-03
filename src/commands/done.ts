@@ -1,6 +1,7 @@
-import { tasks } from "../data/data";
 import { Status } from "../utils/types/global-types";
 import { isTaskChannel } from "../utils/functions/global-functions";
+import { settings, tasks } from "../data/data";
+import { deleteLastMessage } from "../utils/functions/task-channel-functions";
 import { errorEmbed, successEmbed, taskListEmbed } from "../utils/functions/embed-functions";
 import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
@@ -40,6 +41,16 @@ export async function execute(interaction: CommandInteraction) {
   // Reply
   interaction.reply({ embeds: [successEmbed("200 | Task marked as done", `You successfully marked task **${task.title}** with id **${task.id}** as done.`)], ephemeral: true });
 
+  // Remove last message
+  if (settings.lastMessageId) {
+    deleteLastMessage(interaction.client, settings.lastMessageId);
+  }
+
   // Send updated task list
-  return interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+  const updatedTaskList = interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+
+  // Update settings
+  settings.lastMessageId = (await updatedTaskList)?.id || "";
+
+  return;
 }

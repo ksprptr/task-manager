@@ -1,5 +1,6 @@
-import { tasks } from "../../data/data";
 import { isTaskChannel } from "../../utils/functions/global-functions";
+import { settings, tasks } from "../../data/data";
+import { deleteLastMessage } from "../../utils/functions/task-channel-functions";
 import { errorEmbed, taskListEmbed, successEmbed } from "../../utils/functions/embed-functions";
 import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
@@ -37,8 +38,18 @@ export async function execute(interaction: CommandInteraction) {
     // Reply
     interaction.reply({ embeds: [successEmbed("200 | Task removed", "You successfully removed a task.")], ephemeral: true });
 
+    // Remove last message
+    if (settings.lastMessageId) {
+      deleteLastMessage(interaction.client, settings.lastMessageId);
+    }
+
     // Send updated task list
-    return interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+    const updatedTaskList = interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+
+    // Update settings
+    settings.lastMessageId = (await updatedTaskList)?.id || "";
+
+    return;
   } catch (error) {
     console.log(error);
     return interaction.reply({ embeds: [errorEmbed("500 | Internal bot error", "There was an error of removing the task. See console for more details.")], ephemeral: true });

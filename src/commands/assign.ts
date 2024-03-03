@@ -1,6 +1,7 @@
-import { tasks } from "../data/data";
 import { Status } from "../utils/types/global-types";
 import { isTaskChannel } from "../utils/functions/global-functions";
+import { settings, tasks } from "../data/data";
+import { deleteLastMessage } from "../utils/functions/task-channel-functions";
 import { errorEmbed, successEmbed, taskListEmbed } from "../utils/functions/embed-functions";
 import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
@@ -55,6 +56,16 @@ export async function execute(interaction: CommandInteraction) {
     user.send({ embeds: [successEmbed("200 | Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what task have been assigned to you!`)] });
   }
 
+  // Remove last message
+  if (settings.lastMessageId) {
+    deleteLastMessage(interaction.client, settings.lastMessageId);
+  }
+
   // Send updated task list
-  return interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+  const updatedTaskList = interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+
+  // Update settings
+  settings.lastMessageId = (await updatedTaskList)?.id || "";
+
+  return;
 }

@@ -1,7 +1,8 @@
-import { tasks } from "../../data/data";
 import { Status } from "../../utils/types/global-types";
 import { convertStatus } from "../../utils/functions/status-functions";
 import { isTaskChannel } from "../../utils/functions/global-functions";
+import { settings, tasks } from "../../data/data";
+import { deleteLastMessage } from "../../utils/functions/task-channel-functions";
 import { errorEmbed, successEmbed, taskListEmbed } from "../../utils/functions/embed-functions";
 import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder, User } from "discord.js";
 
@@ -77,8 +78,18 @@ export async function execute(interaction: CommandInteraction) {
     // Reply
     interaction.reply({ embeds: [successEmbed("200 | Task updated", "You successfully updated a task.")], ephemeral: true });
     
+    // Remove last message
+    if (settings.lastMessageId) {
+      deleteLastMessage(interaction.client, settings.lastMessageId);
+    }
+
     // Send updated task list
-    return interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+    const updatedTaskList = interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+
+    // Update settings
+    settings.lastMessageId = (await updatedTaskList)?.id || "";
+
+    return;
   } catch (error) {
     console.log(error);
     return interaction.reply({ embeds: [errorEmbed("500 | Internal bot error", "There was an error of updating the task. See console for more details.")], ephemeral: true });

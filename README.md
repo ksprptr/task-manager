@@ -1,0 +1,29 @@
+# Task Manager
+
+Simple discord bot handling tasks.
+
+## Dependencies
+
+[Node.js](https://nodejs.org/en) version `18 or later..`
+
+## Installation
+
+Go to project folder
+
+```bash
+cd task-manager/
+```
+
+Install all dependencies
+
+```bash
+npm install
+```
+
+Start the bot
+
+```bash
+npm run dev
+```
+
+Check out the discord server to see how the bot works!

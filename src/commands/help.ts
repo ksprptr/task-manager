@@ -18,6 +18,10 @@ export async function execute(interaciton: CommandInteraction) {
     name: "Commands",
     value: "You can use the following commands:\n\n`/info` - Get more info about a task\n`/assign` - Assign a task\n`/done` - Mark a task as done\n`/help` - Get help about the bot",
   })
+  .addFields({
+    name: "Tasks",
+    value: "Task format in the task list:\n\n**[id]** | [status] | **Title of the task** *(concept message)*\n└~~-~~ Assigned to: [user]",
+  })
   .setColor("Blue");
 
   // Add admin commands if user is an admin

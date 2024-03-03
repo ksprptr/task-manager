@@ -47,7 +47,7 @@ export const taskInfoEmbed = (task: Task) => {
 
   const embed = new EmbedBuilder({
     title: task.title,
-    description: `${task.description}\n\n**Status: ** ${formatStatus(task.status)}\n**Assigned To:** ${task.assignedTo ? `@${task.assignedTo.username}` : "No one"}`,
+    description: `${task.description}\n\n**ID:** ${task.id}\n**Status: ** ${formatStatus(task.status)}\n**Assigned To:** ${task.assignedTo ? `<@${task.assignedTo.id}>` : "No one"}`,
   }).setColor(getColor(task.status));
 
   return embed;
@@ -64,7 +64,7 @@ export const taskListEmbed = (tasks: Task[]) => {
   }
 
   tasks.forEach((task) => {
-    description += `\n\n**${task.id}** | ${formatStatus(task.status)} | **${task.title}**${task.concept ? ` *(${task.concept})*` : ""}`;
+    description += `\n\n**[${task.id}]** | ${formatStatus(task.status)} | **${task.title}**${task.concept ? ` *(${task.concept})*` : ""}\n└~~-~~ Assigned to: ${task.assignedTo ? `<@${task.assignedTo.id}>` : "No one"}`;
   });
 
   const embed = new EmbedBuilder({

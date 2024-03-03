@@ -37,9 +37,9 @@ export async function execute(interaction: CommandInteraction) {
   if (!task) {
     return interaction.reply({ embeds: [errorEmbed("404 | Task not found", "Task with this id doesn't exist.")], ephemeral: true });
   } else if (task?.status !== Status.OPEN) {
-    return interaction.reply({ embeds: [errorEmbed("409 | Task already in progress", "You can only assign tasks that are open.")], ephemeral: true });
+    return interaction.reply({ embeds: [errorEmbed("409 | Task not open", "You can only assign tasks that are open.")], ephemeral: true });
   } else if (task.assignedTo) {
-    return interaction.reply({ embeds: [errorEmbed("409 | Task already assigned", `This task is already assigned to @${task.assignedTo.username}.`)], ephemeral: true });
+    return interaction.reply({ embeds: [errorEmbed("409 | Task already assigned", `This task is already assigned to <@${task.assignedTo.id}>.`)], ephemeral: true });
   }
 
   // Assign task
@@ -50,7 +50,7 @@ export async function execute(interaction: CommandInteraction) {
   if (user === interaction.user) {
     interaction.reply({ embeds: [successEmbed("200 | Task assigned", `You successfully assigned task **${task.title}** with id **${task.id}** to you.`)], ephemeral: true });
   } else {
-    interaction.reply({ embeds: [successEmbed("200 | Task assigned", `You successfully assigned task **${task.title}** with id **${task.id}** to **${user?.username}**.`)] , ephemeral: true });
+    interaction.reply({ embeds: [successEmbed("200 | Task assigned", `You successfully assigned task **${task.title}** with id **${task.id}** to <@${user?.id}>.`)] , ephemeral: true });
 
     // Send DM to user
     user.send({ embeds: [successEmbed("200 | Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what task have been assigned to you!`)] });

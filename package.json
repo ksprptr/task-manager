@@ -1,7 +1,7 @@
 {
-  "name": "todo-bot",
+  "name": "task-manager",
   "version": "1.0.0",
-  "description": "Simple TO-DO discord app.",
+  "description": "Simple discord bot handling tasks.",
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

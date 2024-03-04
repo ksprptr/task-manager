@@ -9,6 +9,6 @@ export const tasks: Task[] = [];
  * Settings of the bot
  */
 export const settings: Settings = {
-  taskChannelId: "",
+  taskChannelId: "1211006712937717841",
   lastMessageId: "",
 };

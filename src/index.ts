@@ -2,7 +2,7 @@ import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
 import { checkTaskChannel } from "./utils/functions/global-functions";
-import { ActivityType, Client } from "discord.js";
+import { ActivityType, Client, Events } from "discord.js";
 
 // Create a new client
 const client = new Client({
@@ -12,9 +12,10 @@ const client = new Client({
 /**
  * Event listener for when the bot is ready
  */
-client.once("ready", (client) => {
+client.once(Events.ClientReady, (client) => {
   // Get guild id
   let guildId = "";
+  
   client.guilds.cache.forEach((g) => {
     guildId = g.id;
   });
@@ -34,12 +35,13 @@ client.once("ready", (client) => {
 /**
  * Event listener for when a command is used
  */
-client.on("interactionCreate", async (interaction) => {
+client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isCommand()) {
     return;
   }
 
   const { commandName } = interaction;
+
   if (commands[commandName as keyof typeof commands]) {
     commands[commandName as keyof typeof commands].execute(interaction);
   }

@@ -59,12 +59,12 @@ export async function execute(interaction: CommandInteraction) {
     };
     
     // Validation
-    if ((newTask.status === Status.CONCEPT || newTask.status === Status.OPEN) && newTask.assignedTo) {
-      return interaction.reply({ embeds: [errorEmbed("400 | Bad request", "You can only change assign of the task with status in progress or done.")], ephemeral: true });
-    } else if ((newTask.status === Status.CONCEPT || newTask.status === Status.OPEN) && newTask.assignedTo) {
+    if (task.assignedTo && assignedTo !== "no-one" && newTask.assignedTo !== task.assignedTo && newTask.assignedTo !== interaction.user) {
       return interaction.reply({ embeds: [errorEmbed("400 | Bad request", "You can't change task that already have been assigned.")], ephemeral: true });
+    } else if (newTask.status === Status.OPEN && newTask.assignedTo) {
+      return interaction.reply({ embeds: [errorEmbed("400 | Bad request", "You have to remove assigned user to edit task status to open.")], ephemeral: true });
     } else if ((newTask.status === Status.IN_PROGRESS || newTask.status === Status.DONE) && !newTask.assignedTo) {
-      return interaction.reply({ embeds: [errorEmbed("400 | Bad request", "You can't change status to in progress without assigning the task.")], ephemeral: true });
+      return interaction.reply({ embeds: [errorEmbed("400 | Bad request", "You can't change status to in progress or done without assigning the task.")], ephemeral: true });
     }
 
     // Update task

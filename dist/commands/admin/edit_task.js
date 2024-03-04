@@ -44,14 +44,14 @@ async function execute(interaction) {
             status: status ? (0, status_functions_1.convertStatus)(status) : task.status,
             assignedTo: assignedTo === "no-one" ? null : assignedTo ? assignedTo : task.assignedTo,
         };
-        if ((newTask.status === global_types_1.Status.CONCEPT || newTask.status === global_types_1.Status.OPEN) && newTask.assignedTo) {
-            return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("400 | Bad request", "You can only change assign of the task with status in progress or done.")], ephemeral: true });
-        }
-        else if ((newTask.status === global_types_1.Status.CONCEPT || newTask.status === global_types_1.Status.OPEN) && newTask.assignedTo) {
+        if (task.assignedTo && assignedTo !== "no-one" && newTask.assignedTo !== task.assignedTo && newTask.assignedTo !== interaction.user) {
             return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("400 | Bad request", "You can't change task that already have been assigned.")], ephemeral: true });
         }
+        else if (newTask.status === global_types_1.Status.OPEN && newTask.assignedTo) {
+            return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("400 | Bad request", "You have to remove assigned user to edit task status to open.")], ephemeral: true });
+        }
         else if ((newTask.status === global_types_1.Status.IN_PROGRESS || newTask.status === global_types_1.Status.DONE) && !newTask.assignedTo) {
-            return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("400 | Bad request", "You can't change status to in progress without assigning the task.")], ephemeral: true });
+            return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("400 | Bad request", "You can't change status to in progress or done without assigning the task.")], ephemeral: true });
         }
         data_1.tasks[data_1.tasks.indexOf(task)] = newTask;
         if (assignedTo && assignedTo !== "no-one" && newTask.assignedTo !== task.assignedTo && newTask.assignedTo !== interaction.user) {

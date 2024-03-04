@@ -36,15 +36,17 @@ export async function execute(interaction: CommandInteraction) {
   // Validation
   if (!task) {
     return interaction.reply({ embeds: [errorEmbed("404 | Task not found", "Task with this id doesn't exist.")], ephemeral: true });
-  } else if (task?.status !== Status.OPEN) {
-    return interaction.reply({ embeds: [errorEmbed("409 | Task not open", "You can only assign tasks that are open.")], ephemeral: true });
+  } else if (task?.status !== Status.OPEN && task?.status !== Status.CONCEPT) {
+    return interaction.reply({ embeds: [errorEmbed("409 | Task not open", "You can only assign tasks that are open or marked as concept.")], ephemeral: true });
   } else if (task.assignedTo) {
     return interaction.reply({ embeds: [errorEmbed("409 | Task already assigned", `This task is already assigned to <@${task.assignedTo.id}>.`)], ephemeral: true });
+  } else if (user === interaction.client.user) {
+    return interaction.reply({ embeds: [errorEmbed("409 | Invalid user", "You can't assign a task to the bot.")], ephemeral: true });
   }
 
   // Assign task
   task.assignedTo = user;
-  task.status = Status.IN_PROGRESS;
+  task.status = task.status === Status.OPEN ? Status.IN_PROGRESS : Status.CONCEPT;
 
   // Reply
   if (user === interaction.user) {

@@ -36,7 +36,7 @@ const taskInfoEmbed = (task) => {
         }
     };
     const embed = new discord_js_1.EmbedBuilder({
-        title: task.title,
+        title: task.title + (task.concept && task.status === global_types_1.Status.CONCEPT ? ` *(${task.concept})*` : ""),
         description: `${task.description}\n\n**ID:** ${task.id}\n**Status: ** ${(0, status_functions_1.formatStatus)(task.status)}\n**Assigned To:** ${task.assignedTo ? `<@${task.assignedTo.id}>` : "No one"}`,
     }).setColor(getColor(task.status));
     return embed;
@@ -48,7 +48,7 @@ const taskListEmbed = (tasks) => {
         description += "\nNo tasks found.";
     }
     tasks.forEach((task) => {
-        description += `\n\n**[${task.id}]** | ${(0, status_functions_1.formatStatus)(task.status)} | **${task.title}**${task.concept ? ` *(${task.concept})*` : ""}\n└~~-~~ Assigned to: ${task.assignedTo ? `<@${task.assignedTo.id}>` : "No one"}`;
+        description += `\n\n**[${task.id}]** | ${(0, status_functions_1.formatStatus)(task.status)} | **${task.title}**${task.concept && task.status === global_types_1.Status.CONCEPT ? ` *(${task.concept})*` : ""}\n└~~-~~ Assigned to: ${task.assignedTo ? `<@${task.assignedTo.id}>` : "No one"}`;
     });
     const embed = new discord_js_1.EmbedBuilder({
         title: "Task List",

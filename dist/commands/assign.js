@@ -25,14 +25,17 @@ async function execute(interaction) {
     if (!task) {
         return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("404 | Task not found", "Task with this id doesn't exist.")], ephemeral: true });
     }
-    else if (task?.status !== global_types_1.Status.OPEN) {
-        return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("409 | Task not open", "You can only assign tasks that are open.")], ephemeral: true });
+    else if (task?.status !== global_types_1.Status.OPEN && task?.status !== global_types_1.Status.CONCEPT) {
+        return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("409 | Task not open", "You can only assign tasks that are open or marked as concept.")], ephemeral: true });
     }
     else if (task.assignedTo) {
         return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("409 | Task already assigned", `This task is already assigned to <@${task.assignedTo.id}>.`)], ephemeral: true });
     }
+    else if (user === interaction.client.user) {
+        return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("409 | Invalid user", "You can't assign a task to the bot.")], ephemeral: true });
+    }
     task.assignedTo = user;
-    task.status = global_types_1.Status.IN_PROGRESS;
+    task.status = task.status === global_types_1.Status.OPEN ? global_types_1.Status.IN_PROGRESS : global_types_1.Status.CONCEPT;
     if (user === interaction.user) {
         interaction.reply({ embeds: [(0, embed_functions_1.successEmbed)("200 | Task assigned", `You successfully assigned task **${task.title}** with id **${task.id}** to you.`)], ephemeral: true });
     }

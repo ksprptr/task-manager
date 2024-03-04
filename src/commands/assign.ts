@@ -55,7 +55,7 @@ export async function execute(interaction: CommandInteraction) {
     interaction.reply({ embeds: [successEmbed("200 | Task assigned", `You successfully assigned task **${task.title}** with id **${task.id}** to <@${user?.id}>.`)] , ephemeral: true });
 
     // Send DM to user
-    user.send({ embeds: [successEmbed("200 | Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what task have been assigned to you!`)] });
+    user.send({ embeds: [successEmbed("Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what has been assigned to you using \`/info ${task.id}\` in <#${settings.taskChannelId}>`)] });
   }
 
   // Remove last message

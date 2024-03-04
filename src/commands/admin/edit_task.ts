@@ -72,7 +72,7 @@ export async function execute(interaction: CommandInteraction) {
 
     // Send DM to user if assigned
     if (assignedTo && assignedTo !== "no-one" && newTask.assignedTo !== task.assignedTo && newTask.assignedTo !== interaction.user) {
-      return assignedTo.send({ embeds: [successEmbed("200 | Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what task have been assigned to you!`)] });
+      return assignedTo.send({ embeds: [successEmbed("Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what has been assigned to you using \`/info ${task.id}\` in <#${settings.taskChannelId}>`)] });
     }
   
     // Reply

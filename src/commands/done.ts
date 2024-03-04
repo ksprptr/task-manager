@@ -9,6 +9,7 @@ import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "di
 export const data = new SlashCommandBuilder()
   .setName("done")
   .setDescription("Mark a task as done.")
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addNumberOption((option) => option.setName("id").setDescription("ID of the task.").setRequired(true));
 
 /**
@@ -31,8 +32,6 @@ export async function execute(interaction: CommandInteraction) {
     return interaction.reply({ embeds: [errorEmbed("404 | Task not found", "Task with this id doesn't exist.")], ephemeral: true });
   } else if (task.status !== Status.IN_PROGRESS) {
     return interaction.reply({ embeds: [errorEmbed("409 | Task not in progress", "You can only mark tasks that are in progress as done.")], ephemeral: true });
-  } else if ((task.assignedTo !== interaction.user) && !interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ embeds: [errorEmbed("403 | Forbidden", "You can only mark tasks that are assigned to you as done.")], ephemeral: true });
   }
 
   // Mark task as done

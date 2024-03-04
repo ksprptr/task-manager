@@ -55,7 +55,7 @@ async function execute(interaction) {
         }
         data_1.tasks[data_1.tasks.indexOf(task)] = newTask;
         if (assignedTo && assignedTo !== "no-one" && newTask.assignedTo !== task.assignedTo && newTask.assignedTo !== interaction.user) {
-            return assignedTo.send({ embeds: [(0, embed_functions_1.successEmbed)("200 | Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what task have been assigned to you!`)] });
+            return assignedTo.send({ embeds: [(0, embed_functions_1.successEmbed)("Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what has been assigned to you using \`/info ${task.id}\` in <#${data_1.settings.taskChannelId}>`)] });
         }
         interaction.reply({ embeds: [(0, embed_functions_1.successEmbed)("200 | Task updated", "You successfully updated a task.")], ephemeral: true });
         if (data_1.settings.lastMessageId) {

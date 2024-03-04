@@ -10,6 +10,7 @@ const discord_js_1 = require("discord.js");
 exports.data = new discord_js_1.SlashCommandBuilder()
     .setName("done")
     .setDescription("Mark a task as done.")
+    .setDefaultMemberPermissions(discord_js_1.PermissionFlagsBits.Administrator)
     .addNumberOption((option) => option.setName("id").setDescription("ID of the task.").setRequired(true));
 async function execute(interaction) {
     if (!(0, global_functions_1.isTaskChannel)(interaction.channelId)) {
@@ -22,9 +23,6 @@ async function execute(interaction) {
     }
     else if (task.status !== global_types_1.Status.IN_PROGRESS) {
         return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("409 | Task not in progress", "You can only mark tasks that are in progress as done.")], ephemeral: true });
-    }
-    else if ((task.assignedTo !== interaction.user) && !interaction.memberPermissions?.has(discord_js_1.PermissionFlagsBits.Administrator)) {
-        return interaction.reply({ embeds: [(0, embed_functions_1.errorEmbed)("403 | Forbidden", "You can only mark tasks that are assigned to you as done.")], ephemeral: true });
     }
     task.status = global_types_1.Status.DONE;
     interaction.reply({ embeds: [(0, embed_functions_1.successEmbed)("200 | Task marked as done", `You successfully marked task **${task.title}** with id **${task.id}** as done.`)], ephemeral: true });

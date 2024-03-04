@@ -41,7 +41,7 @@ async function execute(interaction) {
     }
     else {
         interaction.reply({ embeds: [(0, embed_functions_1.successEmbed)("200 | Task assigned", `You successfully assigned task **${task.title}** with id **${task.id}** to <@${user?.id}>.`)], ephemeral: true });
-        user.send({ embeds: [(0, embed_functions_1.successEmbed)("200 | Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what task have been assigned to you!`)] });
+        user.send({ embeds: [(0, embed_functions_1.successEmbed)("Task assigned", `Task **${task.title}** with id **${task.id}** has been assigned to you. Check what has been assigned to you using \`/info ${task.id}\` in <#${data_1.settings.taskChannelId}>`)] });
     }
     if (data_1.settings.lastMessageId) {
         (0, task_channel_functions_1.deleteLastMessage)(interaction.client, data_1.settings.lastMessageId);

@@ -8,19 +8,24 @@
     "start": "node .",
     "build": "tsc",
     "format": "prettier --write \"**/*.{json,ts}\"",
-    "lint": "eslint . --ext ts --fix"
+    "lint": "eslint . --ext ts --fix",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kasparrpetr/todo-bot.git"
+    "url": "git+https://github.com/kasparrpetr/task-manager.git"
   },
   "author": "kasparrpetr",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kasparrpetr/todo-bot/issues"
+    "url": "https://github.com/kasparrpetr/task-manager/issues"
   },
-  "homepage": "https://github.com/kasparrpetr/todo-bot#readme",
+  "homepage": "https://github.com/kasparrpetr/task-manager#readme",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-unused-imports": "^3.1.0",
+    "husky": "^9.0.11",
     "tsup": "^8.0.2",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"

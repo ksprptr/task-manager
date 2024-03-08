@@ -17,13 +17,13 @@ cd task-manager/
 Install all dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 Start the bot
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Check out the discord server to see how the bot works!

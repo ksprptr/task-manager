@@ -1,6 +1,9 @@
-import { tasks } from '../data/data';
-import { isTaskChannel } from '../utils/functions/global-functions';
-import { embedField, taskInfoEmbed } from '../utils/functions/embed-functions';
+import { tasks } from '../../data/data';
+import { isTaskChannel } from '../../utils/functions/global-functions';
+import {
+  embedField,
+  taskInfoEmbed,
+} from '../../utils/functions/embed-functions';
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 /**

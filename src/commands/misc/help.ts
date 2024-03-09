@@ -1,4 +1,4 @@
-import { embedField } from '../utils/functions/embed-functions';
+import { embedField } from '../../utils/functions/embed-functions';
 import {
   CommandInteraction,
   PermissionFlagsBits,

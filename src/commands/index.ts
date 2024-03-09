@@ -1,11 +1,11 @@
-import * as done from "./done";
-import * as edit from "./admin/edit_task";
-import * as info from "./info";
-import * as help from "./help";
-import * as clear from "./admin/clear_tasks";
-import * as assign from "./assign";
-import * as create from "./admin/create_task";
-import * as remove from "./admin/remove_task";
+import * as done from './misc/done';
+import * as edit from './admin/edit';
+import * as info from './misc/info';
+import * as help from './misc/help';
+import * as clear from './admin/clear';
+import * as assign from './misc/assign';
+import * as create from './admin/create';
+import * as remove from './admin/remove';
 
 /**
  * Export all commands

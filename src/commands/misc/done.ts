@@ -1,9 +1,12 @@
-import { tasks } from '../data/data';
-import { Status } from '../utils/types/global-types';
-import { settings } from '../config';
-import { isTaskChannel } from '../utils/functions/global-functions';
-import { deleteLastMessage } from '../utils/functions/channel-functions';
-import { embedField, taskListEmbed } from '../utils/functions/embed-functions';
+import { tasks } from '../../data/data';
+import { Status } from '../../utils/types/global-types';
+import { settings } from '../../config';
+import { isTaskChannel } from '../../utils/functions/global-functions';
+import { deleteLastMessage } from '../../utils/functions/channel-functions';
+import {
+  embedField,
+  taskListEmbed,
+} from '../../utils/functions/embed-functions';
 import {
   CommandInteraction,
   PermissionFlagsBits,

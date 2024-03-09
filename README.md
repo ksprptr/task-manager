@@ -1,6 +1,6 @@
 # Task Manager
 
-Simple discord bot handling tasks.
+Simple discord bot handling tasks for school project.
 
 ## Dependencies
 

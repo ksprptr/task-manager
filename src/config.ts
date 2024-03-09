@@ -1,22 +1,30 @@
-import dotenv from "dotenv";
-import { settings } from "./data/data";
+import dotenv from 'dotenv';
+import { Settings } from './utils/types/global-types';
 
 // Load environment variables
 dotenv.config();
 
 // Get environment variables
-const { DISCORD_TOKEN, DISCORD_CLIENT_ID, DISCORD_GUILD_ID } = process.env;
+const { DISCORD_TOKEN, DISCORD_CLIENT_ID } = process.env;
 
-// Check if environment variables are set and if task channel id is set
+// Create settings
+export const settings: Settings = {
+  taskChannelId: '',
+  lastMessageId: '',
+};
+
+// Validation
 if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID) {
-  throw new Error("Missing environment variables.");
+  throw new Error('Missing environment variables.');
 } else if (!settings.taskChannelId) {
-  throw new Error("Missing task channel id in settings. (/src/data/data.ts) Keep in mind task channel must be text channel.");
+  throw new Error(
+    'Missing task channel id in the config! Keep in mind that task channel must be a text channel.'
+  );
 }
 
 // Export config
 export const config = {
   DISCORD_TOKEN,
   DISCORD_CLIENT_ID,
-  DISCORD_GUILD_ID,
+  taskChannelId: settings.taskChannelId,
 };

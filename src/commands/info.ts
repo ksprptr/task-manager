@@ -1,34 +1,54 @@
-import { tasks } from "../data/data";
-import { isTaskChannel } from "../utils/functions/global-functions";
-import { errorEmbed, taskInfoEmbed } from "../utils/functions/embed-functions";
-import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-
-// Export data of command
-export const data = new SlashCommandBuilder()
-  .setName("info")
-  .setDescription("Info about a task.")
-  .addNumberOption((option) => option.setName("id").setDescription("ID of the task.").setRequired(true))
+import { tasks } from '../data/data';
+import { isTaskChannel } from '../utils/functions/global-functions';
+import { embedField, taskInfoEmbed } from '../utils/functions/embed-functions';
+import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 /**
- * Command representing info about a task
+ * Command representing an info command
  */
 export async function execute(interaction: CommandInteraction) {
   // Check if interaciton channel is a task channel
   if (!isTaskChannel(interaction.channelId)) {
-    return interaction.reply({ embeds: [errorEmbed("403 | Forbidden", "You can only use this command in the task channel.")], ephemeral: true });
+    return interaction.reply({
+      embeds: [
+        embedField(
+          'error',
+          'You are not in task channel!',
+          'You can only use this command in the task channel.'
+        ),
+      ],
+      ephemeral: true,
+    });
   }
-  
-  // Get option values
-  const id = interaction.options.get("id")?.value;
 
-  // Get task
-  const task = tasks.find((task) => task.id === id);
+  // Get options
+  const id = interaction.options.get('id')?.value;
+
+  // Get a task
+  const task = tasks.find((taskItem) => taskItem.id === id);
 
   // Validation
   if (!task) {
-    return interaction.reply({ embeds: [errorEmbed("404 | Task not found", "Task with this id doesn't exist.")], ephemeral: true });
+    return interaction.reply({
+      embeds: [
+        embedField(
+          'error',
+          'Task does not exist!',
+          `Task with id **${id}** doesn't exist.`
+        ),
+      ],
+      ephemeral: true,
+    });
   }
 
-  // Reply
+  // Reply with an embed
   return interaction.reply({ embeds: [taskInfoEmbed(task)], ephemeral: true });
 }
+
+// Export data of the command
+export const data = new SlashCommandBuilder()
+  .setName('info')
+  .setDescription('Info about a task.')
+  .addNumberOption((option) =>
+    option.setName('id').setDescription('ID of the task.').setRequired(true)
+  );

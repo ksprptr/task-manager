@@ -1,45 +1,78 @@
-import { isTaskChannel } from "../../utils/functions/global-functions";
-import { settings, tasks } from "../../data/data";
-import { deleteLastMessage } from "../../utils/functions/task-channel-functions";
-import { errorEmbed, successEmbed, taskListEmbed } from "../../utils/functions/embed-functions";
-import { CommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-
-// Export data of command
-export const data = new SlashCommandBuilder()
-  .setName("clear")
-  .setDescription("Clear all tasks.")
-  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+import { tasks } from '../../data/data';
+import { settings } from '../../config';
+import { isTaskChannel } from '../../utils/functions/global-functions';
+import { deleteLastMessage } from '../../utils/functions/channel-functions';
+import {
+  embedField,
+  taskListEmbed,
+} from '../../utils/functions/embed-functions';
+import {
+  CommandInteraction,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from 'discord.js';
 
 /**
- * Command representing the clearing of all tasks
+ * Command representing a clear command
  */
 export async function execute(interaction: CommandInteraction) {
   // Check if interaciton channel is a task channel
   if (!isTaskChannel(interaction.channelId)) {
-    return interaction.reply({ embeds: [errorEmbed("403 | Forbidden", "You can only use this command in the task channel.")], ephemeral: true });
+    return interaction.reply({
+      embeds: [
+        embedField(
+          'error',
+          'You are not in task channel!',
+          'You can only use this command in the task channel.'
+        ),
+      ],
+      ephemeral: true,
+    });
   }
 
-  // Check if there are tasks
+  // Check if there are any tasks
   if (!tasks.length) {
-    return interaction.reply({ embeds: [errorEmbed("404 | Tasks not found", "There are no tasks to clear.")], ephemeral: true });
+    return interaction.reply({
+      embeds: [
+        embedField('error', 'No tasks found!', 'There are no tasks to clear.'),
+      ],
+      ephemeral: true,
+    });
   }
 
-  // Clear tasks
+  // Clear the tasks
   tasks.splice(0, tasks.length);
 
-  // Reply
-  interaction.reply({ embeds: [successEmbed("200 | Tasks cleared", "You successfully cleared all tasks.")], ephemeral: true });
+  // Reply with an embed
+  interaction.reply({
+    embeds: [
+      embedField(
+        'success',
+        'Tasks cleared!',
+        'You successfully cleared all tasks.'
+      ),
+    ],
+    ephemeral: true,
+  });
 
   // Remove last message
   if (settings.lastMessageId) {
     deleteLastMessage(interaction.client, settings.lastMessageId);
   }
 
-  // Send updated task list
-  const updatedTaskList = interaction.channel?.send({ embeds: [taskListEmbed(tasks)] });
+  // Send an updated task list
+  const updatedTaskList = interaction.channel?.send({
+    embeds: [taskListEmbed(tasks)],
+  });
 
   // Update settings
-  settings.lastMessageId = (await updatedTaskList)?.id || "";
+  settings.lastMessageId = (await updatedTaskList)?.id || '';
 
   return;
 }
+
+// Export data of the command
+export const data = new SlashCommandBuilder()
+  .setName('clear')
+  .setDescription('Clear all tasks.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);

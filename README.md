@@ -6,6 +6,8 @@ Simple discord bot handling tasks for school project.
 
 [Node.js](https://nodejs.org/en) version `18 or later..`
 
+[pnpm](https://pnpm.io/installation) version `8 or later..`
+
 ## Installation
 
 Go to project folder

@@ -10,7 +10,7 @@ Simple discord bot handling tasks for school project.
 
 ## Installation
 
-Go to project folder
+Go to the project folder
 
 ```bash
 cd task-manager/
@@ -28,4 +28,4 @@ Start the bot
 pnpm run dev
 ```
 
-Check out the discord server to see how the bot works!
+Check out the discord server to see how the bot works.

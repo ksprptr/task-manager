@@ -1,32 +1,36 @@
-import { settings } from '../../config';
-import { ChannelType, Client } from 'discord.js';
+import { client } from '../..';
+import { getGuildData } from './global-functions';
 
 /**
- * Function representing getting a task channel
+ * Function to get tasks channel by id
  */
-const getTaskChannel = (client: Client) => {
-  // Get a task channel
-  const taskChannel = client.channels.cache.get(settings.taskChannelId);
+export const getTasksChannel = async () => {
+  const guildData = await getGuildData();
 
-  return taskChannel;
+  if (!guildData) return;
+  if (!guildData.tasksChannelId) return;
+
+  const tasksChannel = client.channels.cache.get(guildData.tasksChannelId);
+
+  if (!tasksChannel?.isTextBased()) return;
+
+  return tasksChannel;
 };
 
 /**
- * Function representing deleting last message by id
+ * Function to get concepts channel by id
  */
-export const deleteLastMessage = async (client: Client, messageId: string) => {
-  // Get a task channel
-  const channel = getTaskChannel(client);
+export const getConceptsChannel = async () => {
+  const guildData = await getGuildData();
 
-  // Validation
-  if (!channel) return;
-  if (channel.type !== ChannelType.GuildText) return;
+  if (!guildData) return;
+  if (!guildData.conceptsChannelId) return;
 
-  // Get a message
-  const message = await channel.messages.fetch(messageId);
+  const conceptsChannel = client.channels.cache.get(
+    guildData.conceptsChannelId
+  );
 
-  // Delete a message
-  message.delete();
+  if (!conceptsChannel?.isTextBased()) return;
 
-  return;
+  return conceptsChannel;
 };

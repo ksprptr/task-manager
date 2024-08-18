@@ -1,50 +1,39 @@
-import { embedField } from '../../utils/functions/embed-functions';
+import { normalEmbed } from '../../utils/functions/embed-functions';
 import {
   CommandInteraction,
-  PermissionFlagsBits,
   SlashCommandBuilder,
+  PermissionFlagsBits,
 } from 'discord.js';
 
 /**
  * Command representing a help command
  */
-export async function execute(interaciton: CommandInteraction) {
-  // Create an embed
-  const embed = embedField(
-    'normal',
+export const execute = async (interaciton: CommandInteraction) => {
+  const embed = normalEmbed(
     'Help',
     'This bot is used to manage tasks. You can create, assign, and mark tasks as done.',
     [
       {
         name: 'Commands',
         value:
-          'You can use the following commands:\n\n`/info` - Get more info about a task\n`/assign` - Assign a task\n`/done` - Mark a task as done\n`/help` - Get help about the bot',
-        inline: false,
-      },
-      {
-        name: 'Tasks',
-        value:
-          'Task format in the task list:\n\n**[id]** | [status] | **Title of the task** *(concept message)*\n└~~-~~ Assigned to: [user]',
+          'You can use the following commands:\n\n`/assign` - Assign a task to yourself\n`/open` - Open a concept as a new task\n`/concept` - Change a task to the concept\n`/done` - Mark a task as done\n`/help` - Get help about the bot',
         inline: false,
       },
     ]
   );
 
-  // Add the admin commands if user is an admin
   if (interaciton.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
     embed.addFields({
       name: 'Admin Commands',
       value:
-        'You can use the following commands:\n\n`/create` - Create a task\n`/edit` - Edit a task\n`/remove` - Remove a task\n`/clear` - Clear all tasks',
+        'You can use the following commands:\n\n`/create` - Create an entry\n`/update` - Update en entry\n`/delete` - Delete an entry\n`/clear` - Clear the entries',
       inline: false,
     });
   }
 
-  // Reply with an embed
   return interaciton.reply({ embeds: [embed], ephemeral: true });
-}
+};
 
-// Export data of the command
 export const data = new SlashCommandBuilder()
   .setName('help')
   .setDescription('Help about the bot.');

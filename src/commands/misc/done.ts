@@ -1,99 +1,59 @@
-import { tasks } from '../../data/data';
-import { Status } from '../../utils/types/global-types';
-import { settings } from '../../config';
-import { isTaskChannel } from '../../utils/functions/global-functions';
-import { deleteLastMessage } from '../../utils/functions/channel-functions';
+import { Status } from '@prisma/client';
+import { getTasksChannel } from '../../utils/functions/channel-functions';
 import {
-  embedField,
-  taskListEmbed,
+  errorEmbed,
+  successEmbed,
+  getTasksEmbed,
 } from '../../utils/functions/embed-functions';
+import prisma from '../../utils/prisma/prisma-client';
 import {
   CommandInteraction,
-  PermissionFlagsBits,
   SlashCommandBuilder,
+  PermissionFlagsBits,
 } from 'discord.js';
 
 /**
  * Command representing a done command
  */
-export async function execute(interaction: CommandInteraction) {
-  // Check if interaciton channel is a task channel
-  if (!isTaskChannel(interaction.channelId)) {
-    return interaction.reply({
-      embeds: [
-        embedField(
-          'error',
-          'You are not in task channel!',
-          'You can only use this command in the task channel.'
-        ),
-      ],
-      ephemeral: true,
-    });
-  }
+export const execute = async (interaction: CommandInteraction) => {
+  const id = interaction.options.get('id')?.value?.toString();
 
-  // Get options
-  const id = interaction.options.get('id')?.value;
+  if (!id) return;
+  if (isNaN(parseInt(id))) return;
 
-  // Find a task
-  const task = tasks.find((taskItem) => taskItem.id === id);
+  const task = await prisma.task.findUnique({
+    where: {
+      id: parseInt(id),
+    },
+  });
 
-  // Validation
   if (!task) {
-    return interaction.reply({
-      embeds: [
-        embedField(
-          'error',
-          'Task does not exist!',
-          `Task with id **${id}** doesn't exist.`
-        ),
-      ],
-      ephemeral: true,
-    });
-  } else if (task.status !== Status.IN_PROGRESS) {
-    return interaction.reply({
-      embeds: [
-        embedField(
-          'error',
-          'Task is not in progress!',
-          'You can only mark tasks that are in progress as done.'
-        ),
-      ],
+    return await interaction.reply({
+      embeds: [errorEmbed('Task not found!')],
       ephemeral: true,
     });
   }
 
-  // Mark the task as done
-  task.status = Status.DONE;
-
-  // Reply with an embed
-  interaction.reply({
-    embeds: [
-      embedField(
-        'success',
-        'Task marked as done!',
-        `You successfully marked task **${task.title}** with id **${task.id}** as done.`
-      ),
-    ],
-    ephemeral: true,
+  await prisma.task.update({
+    where: {
+      id: parseInt(id),
+    },
+    data: {
+      status: Status.DONE,
+    },
   });
 
-  // Remove last message
-  if (settings.lastMessageId) {
-    deleteLastMessage(interaction.client, settings.lastMessageId);
-  }
+  const tasksChannel = await getTasksChannel();
 
-  // Send an updated task list
-  const updatedTaskList = interaction.channel?.send({
-    embeds: [taskListEmbed(tasks)],
+  await tasksChannel?.send({
+    embeds: [await getTasksEmbed()],
   });
 
-  // Update settings
-  settings.lastMessageId = (await updatedTaskList)?.id || '';
+  await interaction.reply({
+    embeds: [successEmbed('Task has been marked as done!')],
+  });
+};
 
-  return;
-}
-
-// Export data of the command
 export const data = new SlashCommandBuilder()
   .setName('done')
   .setDescription('Mark a task as done.')

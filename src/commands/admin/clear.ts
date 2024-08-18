@@ -1,78 +1,129 @@
-import { tasks } from '../../data/data';
-import { settings } from '../../config';
-import { isTaskChannel } from '../../utils/functions/global-functions';
-import { deleteLastMessage } from '../../utils/functions/channel-functions';
+import prisma from '../../utils/prisma/prisma-client';
+import { getGuildData } from '../../utils/functions/global-functions';
+import { defaultErrorEmbed } from '../../utils/data/embed-data';
 import {
-  embedField,
-  taskListEmbed,
+  getTasksChannel,
+  getConceptsChannel,
+} from '../../utils/functions/channel-functions';
+import {
+  successEmbed,
+  getTasksEmbed,
+  getConceptsEmbed,
 } from '../../utils/functions/embed-functions';
 import {
   CommandInteraction,
-  PermissionFlagsBits,
   SlashCommandBuilder,
+  PermissionFlagsBits,
 } from 'discord.js';
 
 /**
  * Command representing a clear command
  */
-export async function execute(interaction: CommandInteraction) {
-  // Check if interaciton channel is a task channel
-  if (!isTaskChannel(interaction.channelId)) {
-    return interaction.reply({
-      embeds: [
-        embedField(
-          'error',
-          'You are not in task channel!',
-          'You can only use this command in the task channel.'
-        ),
-      ],
+export const execute = async (interaction: CommandInteraction) => {
+  const type = interaction.options.get('type')?.value?.toString();
+  const guildData = await getGuildData();
+
+  if (!guildData) return;
+
+  const tasks = await prisma.task.findMany({
+    where: {
+      guildId: guildData.guildId,
+    },
+  });
+  const concepts = await prisma.concept.findMany({
+    where: {
+      guildId: guildData.guildId,
+    },
+  });
+  const tasksChannel = await getTasksChannel();
+  const conceptsChannel = await getConceptsChannel();
+
+  try {
+    if (!type) {
+      tasks.forEach(async (task) => {
+        await prisma.task.delete({
+          where: {
+            id: task.id,
+          },
+        });
+      });
+
+      concepts.forEach(async (concept) => {
+        await prisma.concept.delete({
+          where: {
+            id: concept.id,
+          },
+        });
+      });
+
+      await tasksChannel?.send({
+        embeds: [await getTasksEmbed()],
+      });
+
+      await conceptsChannel?.send({
+        embeds: [await getConceptsEmbed()],
+      });
+
+      return await interaction.reply({
+        embeds: [successEmbed('Entries have been cleared!')],
+        ephemeral: true,
+      });
+    } else if (type === 'task') {
+      tasks.forEach(async (task) => {
+        await prisma.task.delete({
+          where: {
+            id: task.id,
+          },
+        });
+      });
+
+      tasksChannel?.send({
+        embeds: [await getTasksEmbed()],
+      });
+
+      return await interaction.reply({
+        embeds: [successEmbed('Tasks have been cleared!')],
+        ephemeral: true,
+      });
+    } else if (type === 'concept') {
+      concepts.forEach(async (concept) => {
+        await prisma.concept.delete({
+          where: {
+            id: concept.id,
+          },
+        });
+      });
+
+      conceptsChannel?.send({
+        embeds: [await getConceptsEmbed()],
+      });
+
+      return await interaction.reply({
+        embeds: [successEmbed('Concepts have been cleared!')],
+        ephemeral: true,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+
+    return await interaction.reply({
+      embeds: [defaultErrorEmbed],
       ephemeral: true,
     });
   }
+};
 
-  // Check if there are any tasks
-  if (!tasks.length) {
-    return interaction.reply({
-      embeds: [
-        embedField('error', 'No tasks found!', 'There are no tasks to clear.'),
-      ],
-      ephemeral: true,
-    });
-  }
-
-  // Clear the tasks
-  tasks.splice(0, tasks.length);
-
-  // Reply with an embed
-  interaction.reply({
-    embeds: [
-      embedField(
-        'success',
-        'Tasks cleared!',
-        'You successfully cleared all tasks.'
-      ),
-    ],
-    ephemeral: true,
-  });
-
-  // Remove last message
-  if (settings.lastMessageId) {
-    deleteLastMessage(interaction.client, settings.lastMessageId);
-  }
-
-  // Send an updated task list
-  const updatedTaskList = interaction.channel?.send({
-    embeds: [taskListEmbed(tasks)],
-  });
-
-  // Update settings
-  settings.lastMessageId = (await updatedTaskList)?.id || '';
-
-  return;
-}
-
-// Export data of the command
 export const data = new SlashCommandBuilder()
   .setName('clear')
-  .setDescription('Clear all tasks.')
-  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
+  .setDescription('Clear the entries.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+  .addStringOption((option) =>
+    option
+      .setName('type')
+      .setDescription('Type of entry to clear.')
+      .setRequired(false)
+      .addChoices([
+        { name: 'Task', value: 'task' },
+        { name: 'Concept', value: 'concept' },
+      ])
+  );

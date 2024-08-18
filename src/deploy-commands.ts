@@ -1,23 +1,26 @@
 import { config } from './config';
-import { commands } from './commands';
+import { getData } from './utils/functions/global-functions';
 import { REST, Routes } from 'discord.js';
-import { DeployCommandsProps } from './utils/types/global-types';
-
-// Get all commands data
-const commandsData = Object.values(commands).map((command) => command.data);
 
 // Create REST object
-const rest = new REST({ version: '10' }).setToken(config.DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken(config.APP_TOKEN);
+
+// Props interface
+interface Props {
+  guildId: string;
+}
 
 /**
  * Function representing the deployment of commands
  */
-export async function deployCommands({ guildId }: DeployCommandsProps) {
+export const deployCommands = async ({ guildId }: Props) => {
+  const commandsData = getData('commands').map((command) => command.data);
+
   try {
     console.log('Started refreshing application (/) commands.');
 
     await rest.put(
-      Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, guildId),
+      Routes.applicationGuildCommands(config.APP_CLIENT_ID, guildId),
       {
         body: commandsData,
       }
@@ -27,4 +30,4 @@ export async function deployCommands({ guildId }: DeployCommandsProps) {
   } catch (error) {
     console.error(error);
   }
-}
+};

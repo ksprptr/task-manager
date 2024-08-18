@@ -1,40 +1,15 @@
-import { Status } from '../types/global-types';
+import { Status } from '@prisma/client';
 
 /**
- * Function representing conversion of status
+ * Function to get status as string
  */
-export const convertStatus = (status: string) => {
-  switch (status) {
-    case 'OPEN':
-      return Status.OPEN;
-    case 'IN_PROGRESS':
-      return Status.IN_PROGRESS;
-    case 'DONE':
-      return Status.DONE;
-    case 'CONCEPT':
-      return Status.CONCEPT;
-  }
-};
-
-/**
- * Function representing getting the status emoji
- */
-const getStatusEmoji = (status: Status) => {
+export const getStatus = (status: Status) => {
   switch (status) {
     case Status.OPEN:
-      return '📋';
+      return '📋 Open';
     case Status.IN_PROGRESS:
-      return '🔨';
+      return '🔨 In Progress';
     case Status.DONE:
-      return '✅';
-    case Status.CONCEPT:
-      return '🧠';
+      return '✅ Done';
   }
-};
-
-/**
- * Function representing formatting of the status
- */
-export const formatStatus = (status: Status) => {
-  return getStatusEmoji(status) + ' ' + status;
 };

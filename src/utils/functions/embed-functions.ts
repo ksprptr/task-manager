@@ -1,124 +1,101 @@
-import { Task, Status } from '../types/global-types';
-import { formatStatus } from './status-functions';
+import prisma from '../prisma/prisma-client';
+import { getStatus } from './status-functions';
+import { getGuildData } from './global-functions';
 import {
   Colors,
-  EmbedBuilder,
   EmbedField,
+  EmbedBuilder,
   EmbedFooterOptions,
 } from 'discord.js';
 
 /**
- * Function representing embed creation
+ * Function representing error embed
  */
-export const embedField = (
-  type: 'normal' | 'success' | 'error',
+export const errorEmbed = (title: string, description?: string) => {
+  const embed = new EmbedBuilder().setColor(Colors.Red).setTitle(title);
+
+  if (description) embed.setDescription(description);
+
+  return embed;
+};
+
+/**
+ * Function representing success embed
+ */
+export const successEmbed = (title: string, description?: string) => {
+  const embed = new EmbedBuilder().setColor(Colors.Green).setTitle(title);
+
+  if (description) embed.setDescription(description);
+
+  return embed;
+};
+
+/**
+ * Function representing a default embed
+ */
+export const normalEmbed = (
   title: string,
   description?: string,
   fields?: EmbedField[],
   footer?: EmbedFooterOptions,
   timeStamp: boolean = false
 ) => {
-  // Create an embed
   const embed = new EmbedBuilder({
-    title,
-  }).setColor(
-    type === 'normal'
-      ? Colors.White
-      : type === 'success'
-      ? Colors.Green
-      : Colors.Red
-  );
+    title: title,
+    description: description,
+  }).setColor(Colors.Purple);
 
-  // Add description if exists
-  if (description) {
-    embed.setDescription(description);
-  }
-
-  // Add fields if exists
-  if (fields) {
-    embed.addFields(fields);
-  }
-
-  // Add footer if exists
-  if (footer) {
-    embed.setFooter(footer);
-  }
-
-  // Add timestamp if needed
-  if (timeStamp) {
-    embed.setTimestamp();
-  }
+  if (timeStamp) embed.setTimestamp();
+  if (fields) fields.forEach((field) => embed.addFields(field));
+  if (footer) embed.setFooter(footer);
 
   return embed;
 };
 
 /**
- * Function representing creation of a task info embed
+ * Function to get tasks embed
  */
-export const taskInfoEmbed = (task: Task) => {
-  // Get color based on status
-  const getColor = (status: Status) => {
-    switch (status) {
-      case Status.OPEN:
-        return 'Red';
-      case Status.IN_PROGRESS:
-        return 'Yellow';
-      case Status.DONE:
-        return 'Green';
-      case Status.CONCEPT:
-        return 'Purple';
-      default:
-        return 'Grey';
-    }
-  };
-
-  // Create an embed
-  const embed = new EmbedBuilder({
-    title:
-      task.title +
-      (task.concept && task.status === Status.CONCEPT
-        ? ` *(${task.concept})*`
-        : ''),
-    description: `${task.description}\n\n**ID:** ${
-      task.id
-    }\n**Status: ** ${formatStatus(task.status)}\n**Assigned To:** ${
-      task.assignedTo ? `<@${task.assignedTo.id}>` : 'No one'
-    }`,
-  }).setColor(getColor(task.status));
-
-  return embed;
-};
-
-/**
- * Function representing creation of a task list embed
- */
-export const taskListEmbed = (tasks: Task[]) => {
-  // Create a description
-  let description = '';
-
-  // Check if task list is empty
-  if (tasks.length === 0) {
-    description += '\nNo tasks found.';
-  }
-
-  // Add tasks to the description
-  tasks.forEach((task) => {
-    description += `\n\n**[${task.id}]** | ${formatStatus(task.status)} | **${
-      task.title
-    }**${
-      task.concept && task.status === Status.CONCEPT
-        ? ` *(${task.concept})*`
-        : ''
-    }\n└~~-~~ Assigned to: ${
-      task.assignedTo ? `<@${task.assignedTo.id}>` : 'No one'
-    }`;
+export const getTasksEmbed = async () => {
+  const guildData = await getGuildData();
+  const tasks = await prisma.task.findMany({
+    where: {
+      guildId: guildData?.guildId,
+    },
   });
 
-  // Create an embed
-  const embed = new EmbedBuilder({
-    title: 'Task List',
-    description: description,
-  }).setColor(Colors.White);
+  return normalEmbed(
+    'Tasks',
+    `Here are the tasks for this server. ${
+      tasks.length === 0 ? '\n\nNo tasks found.' : ''
+    }`,
+    tasks.map((task) => ({
+      name: `${getStatus(task.status)} | **${task.title}**`,
+      value: task.description,
+      inline: false,
+    }))
+  );
+};
 
-  return embed;
+/**
+ * Function to get concepts embed
+ */
+export const getConceptsEmbed = async () => {
+  const guildData = await getGuildData();
+  const concepts = await prisma.concept.findMany({
+    where: {
+      guildId: guildData?.guildId,
+    },
+  });
+
+  return normalEmbed(
+    'Concepts',
+    `Here are the concepts for this server. ${
+      concepts.length === 0 ? '\n\nNo concepts found.' : ''
+    }`,
+    concepts.map((concept) => ({
+      name: `🧠 | **${concept.title}**`,
+      value: concept.description,
+      inline: false,
+    }))
+  );
 };

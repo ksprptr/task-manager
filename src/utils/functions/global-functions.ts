@@ -1,28 +1,52 @@
-import { settings } from '../../config';
-import { ChannelType, Client } from 'discord.js';
+import path from 'path';
+import { localGuild } from '../types/global-types';
+import { readdirSync, statSync } from 'fs';
 
 /**
- * Function representing task channel check
+ * Function to get commands or events
  */
-export const checkTaskChannel = (client: Client) => {
-  // Get a task channel
-  const channel = client.channels.cache.get(settings.taskChannelId);
+export const getData = (type: 'commands' | 'events') => {
+  const data = [];
+  const dataFiles: string[] = [];
+  const dataPath = path.resolve(__dirname + '../../../' + type);
+  const dataDir = readdirSync(dataPath);
 
-  // Validation
-  if (!channel) {
-    throw new Error(
-      'Task channel not found. Check settings in /src/data/data.ts (taskChannelId). Keep in mind task channel must be text channel.'
-    );
-  } else if (channel && channel.type !== ChannelType.GuildText) {
-    throw new Error(
-      'Task channel must be text channel. Check settings in /src/data/data.ts (taskChannelId).'
-    );
+  dataDir.forEach((file) => {
+    const filePath = path.resolve(dataPath, file);
+
+    if (statSync(filePath).isDirectory()) {
+      const subFiles = readdirSync(filePath);
+      subFiles.forEach((subFile) => dataFiles.push(`${file}/${subFile}`));
+    }
+
+    if (statSync(filePath).isFile()) dataFiles.push(file);
+  });
+
+  for (const file of dataFiles) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const dataItem = require(`../../${type}/${file}`);
+    data.push(dataItem);
   }
+
+  return data;
 };
 
 /**
- * Function representing if interaction channel is a task channel
+ * Function to get guild data from database
  */
-export const isTaskChannel = (channelId: string) => {
-  return channelId === settings.taskChannelId;
+export const getGuildData = async () => {
+  const guildData = await prisma.guild.findUnique({
+    where: {
+      guildId: localGuild.id,
+    },
+  });
+
+  return guildData;
+};
+
+/**
+ * Function representing capitalizing first letter
+ */
+export const capitalizeFirstLetter = (input: string): string => {
+  return input.charAt(0).toUpperCase() + input.slice(1);
 };

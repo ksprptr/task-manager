@@ -1,17 +1,20 @@
+import prisma from '../../utils/prisma/prisma-client';
 import { Status } from '@prisma/client';
 import { getGuildData } from '../../utils/functions/global-functions';
 import { defaultErrorEmbed } from '../../utils/data/embed-data';
-import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
-import {
-  getTasksChannel,
-  getConceptsChannel,
-} from '../../utils/functions/channel-functions';
 import {
   errorEmbed,
   successEmbed,
-  getTasksEmbed,
-  getConceptsEmbed,
 } from '../../utils/functions/embed-functions';
+import {
+  sendTasksEmbed,
+  sendConceptsEmbed,
+} from '../../utils/functions/channel-functions';
+import {
+  CommandInteraction,
+  SlashCommandBuilder,
+  PermissionFlagsBits,
+} from 'discord.js';
 
 /**
  * Command representing an open command
@@ -25,21 +28,21 @@ export const execute = async (interaction: CommandInteraction) => {
 
   if (!guildData) return;
 
-  try {
-    const concept = await prisma.concept.findFirst({
-      where: {
-        id: parseInt(id),
-        guildId: guildData.guildId,
-      },
+  const concept = await prisma.concept.findFirst({
+    where: {
+      id: parseInt(id),
+      guildId: guildData.guildId,
+    },
+  });
+
+  if (!concept) {
+    return await interaction.reply({
+      embeds: [errorEmbed('Concept not found!')],
+      ephemeral: true,
     });
+  }
 
-    if (!concept) {
-      return await interaction.reply({
-        embeds: [errorEmbed('Concept not found!')],
-        ephemeral: true,
-      });
-    }
-
+  try {
     await prisma.concept.delete({
       where: {
         id: parseInt(id),
@@ -55,23 +58,16 @@ export const execute = async (interaction: CommandInteraction) => {
       },
     });
 
-    const tasksChannel = await getTasksChannel();
-    const conceptsChannel = await getConceptsChannel();
+    await sendTasksEmbed();
+    await sendConceptsEmbed();
 
-    await tasksChannel?.send({
-      embeds: [await getTasksEmbed()],
-    });
-    await conceptsChannel?.send({
-      embeds: [await getConceptsEmbed()],
-    });
-
-    await interaction.reply({
+    return await interaction.reply({
       embeds: [successEmbed('Concept has been opened as a new task!')],
     });
   } catch (error) {
     console.error(error);
 
-    await interaction.reply({
+    return await interaction.reply({
       embeds: [defaultErrorEmbed],
     });
   }
@@ -80,6 +76,7 @@ export const execute = async (interaction: CommandInteraction) => {
 export const data = new SlashCommandBuilder()
   .setName('open')
   .setDescription('Open a concept as a new task.')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addNumberOption((option) =>
     option.setName('id').setDescription('ID of the concept.').setRequired(true)
   );

@@ -1,19 +1,17 @@
 import prisma from '../../utils/prisma/prisma-client';
 import { defaultErrorEmbed } from '../../utils/data/embed-data';
 import {
-  getTasksChannel,
-  getConceptsChannel,
+  errorEmbed,
+  successEmbed,
+} from '../../utils/functions/embed-functions';
+import {
+  sendTasksEmbed,
+  sendConceptsEmbed,
 } from '../../utils/functions/channel-functions';
 import {
   getGuildData,
   capitalizeFirstLetter,
 } from '../../utils/functions/global-functions';
-import {
-  errorEmbed,
-  successEmbed,
-  getTasksEmbed,
-  getConceptsEmbed,
-} from '../../utils/functions/embed-functions';
 import {
   CommandInteraction,
   SlashCommandBuilder,
@@ -49,29 +47,29 @@ export const execute = async (interaction: CommandInteraction) => {
 
   if (!guildData) return;
 
+  const entry =
+    type === 'task'
+      ? await prisma.task.findFirst({
+          where: {
+            id: parseInt(id),
+            guildId: guildData.guildId,
+          },
+        })
+      : await prisma.concept.findFirst({
+          where: {
+            id: parseInt(id),
+            guildId: guildData.guildId,
+          },
+        });
+
+  if (!entry) {
+    return await interaction.reply({
+      embeds: [errorEmbed(`${capitalizeFirstLetter(type)} not found!`)],
+      ephemeral: true,
+    });
+  }
+
   try {
-    const entry =
-      type === 'task'
-        ? await prisma.task.findFirst({
-            where: {
-              id: parseInt(id),
-              guildId: guildData.guildId,
-            },
-          })
-        : await prisma.concept.findFirst({
-            where: {
-              id: parseInt(id),
-              guildId: guildData.guildId,
-            },
-          });
-
-    if (!entry) {
-      return await interaction.reply({
-        embeds: [errorEmbed(`${capitalizeFirstLetter(type)} not found!`)],
-        ephemeral: true,
-      });
-    }
-
     if (type === 'task') {
       await prisma.task.update({
         where: {
@@ -82,6 +80,8 @@ export const execute = async (interaction: CommandInteraction) => {
           description: description,
         },
       });
+
+      await sendTasksEmbed();
     } else {
       await prisma.concept.update({
         where: {
@@ -92,18 +92,11 @@ export const execute = async (interaction: CommandInteraction) => {
           description: description,
         },
       });
+
+      await sendConceptsEmbed();
     }
 
-    const channel =
-      type === 'task' ? await getTasksChannel() : await getConceptsChannel();
-
-    await channel?.send({
-      embeds: [
-        type === 'task' ? await getTasksEmbed() : await getConceptsEmbed(),
-      ],
-    });
-
-    await interaction.reply({
+    return await interaction.reply({
       embeds: [
         successEmbed(`${capitalizeFirstLetter(type)} has been updated!`),
       ],
@@ -112,7 +105,7 @@ export const execute = async (interaction: CommandInteraction) => {
   } catch (error) {
     console.error(error);
 
-    await interaction.reply({
+    return await interaction.reply({
       embeds: [defaultErrorEmbed],
       ephemeral: true,
     });

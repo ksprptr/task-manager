@@ -1,15 +1,11 @@
 import prisma from '../../utils/prisma/prisma-client';
 import { Status } from '@prisma/client';
+import { successEmbed } from '../../utils/functions/embed-functions';
 import { getGuildData } from '../../utils/functions/global-functions';
 import {
-  getTasksChannel,
-  getConceptsChannel,
+  sendTasksEmbed,
+  sendConceptsEmbed,
 } from '../../utils/functions/channel-functions';
-import {
-  successEmbed,
-  getTasksEmbed,
-  getConceptsEmbed,
-} from '../../utils/functions/embed-functions';
 import {
   CommandInteraction,
   SlashCommandBuilder,
@@ -37,20 +33,20 @@ export const execute = async (interaction: CommandInteraction) => {
 
   if (!guildData) return;
 
-  try {
-    if (
-      type === 'task' ? !guildData.tasksChannelId : !guildData.conceptsChannelId
-    ) {
-      return await interaction.reply({
-        embeds: [
-          type === 'task'
-            ? tasksChannelMissingEmbed
-            : conceptsChannelMissingEmbed,
-        ],
-        ephemeral: true,
-      });
-    }
+  if (
+    type === 'task' ? !guildData.tasksChannelId : !guildData.conceptsChannelId
+  ) {
+    return await interaction.reply({
+      embeds: [
+        type === 'task'
+          ? tasksChannelMissingEmbed
+          : conceptsChannelMissingEmbed,
+      ],
+      ephemeral: true,
+    });
+  }
 
+  try {
     if (type === 'task') {
       await prisma.task.create({
         data: {
@@ -60,6 +56,8 @@ export const execute = async (interaction: CommandInteraction) => {
           status: Status.OPEN,
         },
       });
+
+      await sendTasksEmbed();
     } else {
       await prisma.concept.create({
         data: {
@@ -68,16 +66,9 @@ export const execute = async (interaction: CommandInteraction) => {
           description,
         },
       });
+
+      await sendConceptsEmbed();
     }
-
-    const channel =
-      type === 'task' ? await getTasksChannel() : await getConceptsChannel();
-
-    await channel?.send({
-      embeds: [
-        type === 'task' ? await getTasksEmbed() : await getConceptsEmbed(),
-      ],
-    });
 
     return await interaction.reply({
       embeds: [successEmbed(`${type} has been created!`)],

@@ -16,7 +16,7 @@ export const execute = async (interaciton: CommandInteraction) => {
       {
         name: 'Commands',
         value:
-          'You can use the following commands:\n\n`/assign` - Assign a task to yourself\n`/open` - Open a concept as a new task\n`/concept` - Change a task to the concept\n`/done` - Mark a task as done\n`/help` - Get help about the bot',
+          'You can use the following commands:\n\n`/assign` - Assign a task to yourself\n`/done` - Mark a task as done\n`/help` - Get help about the bot',
         inline: false,
       },
     ]
@@ -26,7 +26,7 @@ export const execute = async (interaciton: CommandInteraction) => {
     embed.addFields({
       name: 'Admin Commands',
       value:
-        'You can use the following commands:\n\n`/create` - Create an entry\n`/update` - Update en entry\n`/delete` - Delete an entry\n`/clear` - Clear the entries',
+        'You can use the following commands:\n\n`/create` - Create an entry\n`/update` - Update en entry\n`/delete` - Delete an entry\n`/clear` - Clear the entries\n\n`/open` - Open a concept as a new task\n`/concept` - Change a task to the concept',
       inline: false,
     });
   }

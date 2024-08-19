@@ -1,15 +1,11 @@
 import prisma from '../../utils/prisma/prisma-client';
+import { successEmbed } from '../../utils/functions/embed-functions';
 import { getGuildData } from '../../utils/functions/global-functions';
 import { defaultErrorEmbed } from '../../utils/data/embed-data';
 import {
-  getTasksChannel,
-  getConceptsChannel,
+  sendTasksEmbed,
+  sendConceptsEmbed,
 } from '../../utils/functions/channel-functions';
-import {
-  successEmbed,
-  getTasksEmbed,
-  getConceptsEmbed,
-} from '../../utils/functions/embed-functions';
 import {
   CommandInteraction,
   SlashCommandBuilder,
@@ -35,8 +31,6 @@ export const execute = async (interaction: CommandInteraction) => {
       guildId: guildData.guildId,
     },
   });
-  const tasksChannel = await getTasksChannel();
-  const conceptsChannel = await getConceptsChannel();
 
   try {
     if (!type) {
@@ -56,13 +50,8 @@ export const execute = async (interaction: CommandInteraction) => {
         });
       });
 
-      await tasksChannel?.send({
-        embeds: [await getTasksEmbed()],
-      });
-
-      await conceptsChannel?.send({
-        embeds: [await getConceptsEmbed()],
-      });
+      await sendTasksEmbed();
+      await sendConceptsEmbed();
 
       return await interaction.reply({
         embeds: [successEmbed('Entries have been cleared!')],
@@ -77,9 +66,7 @@ export const execute = async (interaction: CommandInteraction) => {
         });
       });
 
-      tasksChannel?.send({
-        embeds: [await getTasksEmbed()],
-      });
+      await sendTasksEmbed();
 
       return await interaction.reply({
         embeds: [successEmbed('Tasks have been cleared!')],
@@ -94,9 +81,7 @@ export const execute = async (interaction: CommandInteraction) => {
         });
       });
 
-      conceptsChannel?.send({
-        embeds: [await getConceptsEmbed()],
-      });
+      await sendConceptsEmbed();
 
       return await interaction.reply({
         embeds: [successEmbed('Concepts have been cleared!')],

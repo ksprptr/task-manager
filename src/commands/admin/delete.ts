@@ -1,8 +1,12 @@
 import prisma from '../../utils/prisma/prisma-client';
 import { defaultErrorEmbed } from '../../utils/data/embed-data';
 import {
-  getTasksChannel,
-  getConceptsChannel,
+  errorEmbed,
+  successEmbed,
+} from '../../utils/functions/embed-functions';
+import {
+  sendTasksEmbed,
+  sendConceptsEmbed,
 } from '../../utils/functions/channel-functions';
 import {
   getGuildData,
@@ -13,12 +17,6 @@ import {
   SlashCommandBuilder,
   PermissionFlagsBits,
 } from 'discord.js';
-import {
-  errorEmbed,
-  successEmbed,
-  getTasksEmbed,
-  getConceptsEmbed,
-} from '../../utils/functions/embed-functions';
 
 /**
  * Command representing a delete command
@@ -35,43 +33,38 @@ export const execute = async (interaction: CommandInteraction) => {
 
   if (!guildData) return;
 
+  const entry =
+    type === 'task'
+      ? await prisma.task.findFirst({
+          where: {
+            id: parseInt(id),
+            guildId: guildData.guildId,
+          },
+        })
+      : await prisma.concept.findFirst({
+          where: {
+            id: parseInt(id),
+            guildId: guildData.guildId,
+          },
+        });
+
+  if (!entry) {
+    return await interaction.reply({
+      embeds: [errorEmbed(`${capitalizeFirstLetter(type)} not found!`)],
+      ephemeral: true,
+    });
+  }
+
   try {
-    const entry =
-      type === 'task'
-        ? await prisma.task.findFirst({
-            where: {
-              id: parseInt(id),
-              guildId: guildData.guildId,
-            },
-          })
-        : await prisma.concept.findFirst({
-            where: {
-              id: parseInt(id),
-              guildId: guildData.guildId,
-            },
-          });
-
-    if (!entry) {
-      return await interaction.reply({
-        embeds: [errorEmbed(`${capitalizeFirstLetter(type)} not found!`)],
-        ephemeral: true,
-      });
-    }
-
     if (type === 'task') {
       await prisma.task.delete({ where: { id: parseInt(id) } });
+
+      await sendTasksEmbed();
     } else {
       await prisma.concept.delete({ where: { id: parseInt(id) } });
+
+      await sendConceptsEmbed();
     }
-
-    const channel =
-      type === 'task' ? await getTasksChannel() : await getConceptsChannel();
-
-    await channel?.send({
-      embeds: [
-        type === 'task' ? await getTasksEmbed() : await getConceptsEmbed(),
-      ],
-    });
 
     return await interaction.reply({
       embeds: [

@@ -1,11 +1,14 @@
 import prisma from '../../utils/prisma/prisma-client';
-import { Status } from '@prisma/client';
-import { sendTasksEmbed } from '../../utils/functions/channel-functions';
+import { getGuildData } from '../../utils/functions/global-functions';
 import { defaultErrorEmbed } from '../../utils/data/embed-data';
 import {
   errorEmbed,
   successEmbed,
 } from '../../utils/functions/embed-functions';
+import {
+  sendTasksEmbed,
+  sendConceptsEmbed,
+} from '../../utils/functions/channel-functions';
 import {
   CommandInteraction,
   SlashCommandBuilder,
@@ -13,17 +16,21 @@ import {
 } from 'discord.js';
 
 /**
- * Command representing a done command
+ * Command representing a concept command
  */
 export const execute = async (interaction: CommandInteraction) => {
   const id = interaction.options.get('id')?.value?.toString();
 
   if (!id) return;
-  if (isNaN(parseInt(id))) return;
 
-  const task = await prisma.task.findUnique({
+  const guildData = await getGuildData();
+
+  if (!guildData) return;
+
+  const task = await prisma.task.findFirst({
     where: {
       id: parseInt(id),
+      guildId: guildData.guildId,
     },
   });
 
@@ -34,39 +41,27 @@ export const execute = async (interaction: CommandInteraction) => {
     });
   }
 
-  if (task.assignedTo !== interaction.user.id) {
-    return await interaction.reply({
-      embeds: [
-        errorEmbed(
-          'You cannot mark this task as done!',
-          'You are not the assignee.'
-        ),
-      ],
-      ephemeral: true,
-    });
-  }
-
-  if (task.status === Status.DONE) {
-    return await interaction.reply({
-      embeds: [errorEmbed('Task is already done!')],
-      ephemeral: true,
-    });
-  }
-
   try {
-    await prisma.task.update({
+    await prisma.task.delete({
       where: {
         id: parseInt(id),
       },
+    });
+
+    await prisma.concept.create({
       data: {
-        status: Status.DONE,
+        guildId: guildData.guildId,
+        title: task.title,
+        description: task.description,
       },
     });
 
     await sendTasksEmbed();
+    await sendConceptsEmbed();
 
     return await interaction.reply({
-      embeds: [successEmbed('Task has been marked as done!')],
+      embeds: [successEmbed('Task has been changed to a concept!')],
+      ephemeral: true,
     });
   } catch (error) {
     console.error(error);
@@ -79,8 +74,8 @@ export const execute = async (interaction: CommandInteraction) => {
 };
 
 export const data = new SlashCommandBuilder()
-  .setName('done')
-  .setDescription('Mark a task as done.')
+  .setName('concept')
+  .setDescription('Change a task to a concept.')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addNumberOption((option) =>
     option.setName('id').setDescription('ID of the task.').setRequired(true)

@@ -11,7 +11,7 @@ import {
 export const execute = async (interaciton: CommandInteraction) => {
   const embed = normalEmbed(
     'Help',
-    'This bot is used to manage tasks. You can create, assign, mark tasks as done and more...',
+    'This bot is used to manage tasks. You can create, assign, mark tasks as done and more. Here is a list of commands you can use:',
     [
       {
         name: 'Commands',

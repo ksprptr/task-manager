@@ -31,7 +31,7 @@ export const successEmbed = (title: string, description?: string) => {
 };
 
 /**
- * Function representing a default embed
+ * Function representing normal embed
  */
 export const normalEmbed = (
   title: string,
@@ -64,15 +64,19 @@ export const getTasksEmbed = async () => {
   });
 
   return normalEmbed(
-    'Tasks',
-    `Here are the tasks for this server. ${
-      tasks.length === 0 ? '\n\nNo tasks found.' : ''
-    }`,
+    'Active Tasks',
+    `${tasks.length === 0 ? '\n\nNo tasks found.' : ''}`,
     tasks.map((task) => ({
-      name: `${getStatus(task.status)} | **${task.title}**`,
-      value: task.description,
+      name: `${task.title} | ${getStatus(task.status)}`,
+      value: `**Description:** ${task.description}\n**Assigned To:** ${
+        task.assignedTo ? `<@${task.assignedTo}>` : 'No one'
+      }\n**ID:** ${task.id}`,
       inline: false,
-    }))
+    })),
+    {
+      text: `Total Tasks: ${tasks.length}`,
+    },
+    true
   );
 };
 
@@ -88,14 +92,16 @@ export const getConceptsEmbed = async () => {
   });
 
   return normalEmbed(
-    'Concepts',
-    `Here are the concepts for this server. ${
-      concepts.length === 0 ? '\n\nNo concepts found.' : ''
-    }`,
+    'Active Concepts',
+    `${concepts.length === 0 ? '\n\nNo concepts found.' : ''}`,
     concepts.map((concept) => ({
-      name: `🧠 | **${concept.title}**`,
-      value: concept.description,
+      name: `🧠 ${concept.title}`,
+      value: `**Description:** ${concept.description}\n**ID:** ${concept.id}`,
       inline: false,
-    }))
+    })),
+    {
+      text: `Total Concepts: ${concepts.length}`,
+    },
+    true
   );
 };

@@ -25,9 +25,7 @@ export const execute = async (interaction: CommandInteraction) => {
   const type = interaction.options.get('type')?.value?.toString();
   const id = interaction.options.get('id')?.value?.toString();
 
-  if (!type || !id) {
-    return;
-  }
+  if (!type || !id) return;
 
   const guildData = await getGuildData();
 
@@ -36,39 +34,41 @@ export const execute = async (interaction: CommandInteraction) => {
   const entry =
     type === 'task'
       ? await prisma.task.findFirst({
-          where: {
-            id: parseInt(id),
-            guildId: guildData.guildId,
-          },
+          where: { id, guildId: guildData.guildId },
         })
       : await prisma.concept.findFirst({
-          where: {
-            id: parseInt(id),
-            guildId: guildData.guildId,
-          },
+          where: { id, guildId: guildData.guildId },
         });
 
   if (!entry) {
     return await interaction.reply({
-      embeds: [errorEmbed(`${capitalizeFirstLetter(type)} not found!`)],
+      embeds: [
+        errorEmbed(
+          `${capitalizeFirstLetter(type)} not found!`,
+          'Please provide a valid ID.'
+        ),
+      ],
       ephemeral: true,
     });
   }
 
   try {
     if (type === 'task') {
-      await prisma.task.delete({ where: { id: parseInt(id) } });
+      await prisma.task.delete({ where: { id } });
 
       await sendTasksEmbed();
     } else {
-      await prisma.concept.delete({ where: { id: parseInt(id) } });
+      await prisma.concept.delete({ where: { id } });
 
       await sendConceptsEmbed();
     }
 
     return await interaction.reply({
       embeds: [
-        successEmbed(`${capitalizeFirstLetter(type)} has been deleted!`),
+        successEmbed(
+          `${capitalizeFirstLetter(type)} deleted!`,
+          `You have deleted the ${type}.`
+        ),
       ],
       ephemeral: true,
     });
@@ -89,13 +89,13 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName('type')
-      .setDescription('Type of the entry to delete.')
+      .setDescription('Type of the entry.')
       .setRequired(true)
       .addChoices([
         { name: 'Task', value: 'task' },
         { name: 'Concept', value: 'concept' },
       ])
   )
-  .addNumberOption((option) =>
+  .addStringOption((option) =>
     option.setName('id').setDescription('ID of the entry.').setRequired(true)
   );

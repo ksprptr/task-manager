@@ -51,3 +51,27 @@ export const getGuildData = async () => {
 export const capitalizeFirstLetter = (input: string): string => {
   return input.charAt(0).toUpperCase() + input.slice(1);
 };
+
+/**
+ * Function to generate id for new tasks and concepts
+ */
+export const generateId = async () => {
+  const letters = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const length = 6;
+
+  const id = Array.from({ length }, () => {
+    const random = Math.random();
+    const characters = random < 0.5 ? letters : numbers;
+    return characters.charAt(Math.floor(random * characters.length));
+  }).join('');
+
+  if (
+    (await prisma.task.findUnique({ where: { id } })) ||
+    (await prisma.concept.findUnique({ where: { id } }))
+  ) {
+    generateId();
+  }
+
+  return id;
+};

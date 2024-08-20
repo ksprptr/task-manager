@@ -7,6 +7,7 @@ import {
   successEmbed,
 } from '../../utils/functions/embed-functions';
 import {
+  GuildMember,
   CommandInteraction,
   SlashCommandBuilder,
   PermissionFlagsBits,
@@ -17,29 +18,29 @@ import {
  */
 export const execute = async (interaction: CommandInteraction) => {
   const id = interaction.options.get('id')?.value?.toString();
+  const member = interaction.member as GuildMember;
 
   if (!id) return;
   if (isNaN(parseInt(id))) return;
 
-  const task = await prisma.task.findUnique({
-    where: {
-      id: parseInt(id),
-    },
-  });
+  const task = await prisma.task.findUnique({ where: { id } });
 
   if (!task) {
     return await interaction.reply({
-      embeds: [errorEmbed('Task not found!')],
+      embeds: [errorEmbed('Task not found!', 'Please provide a valid ID.')],
       ephemeral: true,
     });
   }
 
-  if (task.assignedTo !== interaction.user.id) {
+  if (
+    task.assignedTo !== interaction.user.id &&
+    !member.permissions.has(PermissionFlagsBits.Administrator)
+  ) {
     return await interaction.reply({
       embeds: [
         errorEmbed(
-          'You cannot mark this task as done!',
-          'You are not the assignee.'
+          'Cannot mark the task as done!',
+          'You are not the assignee of the task.'
         ),
       ],
       ephemeral: true,
@@ -48,25 +49,31 @@ export const execute = async (interaction: CommandInteraction) => {
 
   if (task.status === Status.DONE) {
     return await interaction.reply({
-      embeds: [errorEmbed('Task is already done!')],
+      embeds: [
+        errorEmbed(
+          'Cannot mark the task as done!',
+          'Task is already marked as done.'
+        ),
+      ],
       ephemeral: true,
     });
   }
 
   try {
     await prisma.task.update({
-      where: {
-        id: parseInt(id),
-      },
-      data: {
-        status: Status.DONE,
-      },
+      where: { id },
+      data: { status: Status.DONE },
     });
 
     await sendTasksEmbed();
 
     return await interaction.reply({
-      embeds: [successEmbed('Task has been marked as done!')],
+      embeds: [
+        successEmbed(
+          'Task marked as done!',
+          'You have marked the task as done.'
+        ),
+      ],
     });
   } catch (error) {
     console.error(error);
@@ -80,8 +87,8 @@ export const execute = async (interaction: CommandInteraction) => {
 
 export const data = new SlashCommandBuilder()
   .setName('done')
-  .setDescription('Mark a task as done.')
+  .setDescription('Mark the task as done.')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-  .addNumberOption((option) =>
+  .addStringOption((option) =>
     option.setName('id').setDescription('ID of the task.').setRequired(true)
   );

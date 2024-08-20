@@ -27,16 +27,13 @@ export const execute = async (interaction: CommandInteraction) => {
   const title = interaction.options.get('title')?.value?.toString();
   const description = interaction.options.get('description')?.value?.toString();
 
-  if (!type || !id) {
-    return;
-  }
-
+  if (!type || !id) return;
   if (!title && !description) {
     return await interaction.reply({
       embeds: [
         errorEmbed(
           'Invalid input!',
-          'Please provide a title or description to update.'
+          'Please provide a title or description to update the entry.'
         ),
       ],
       ephemeral: true,
@@ -50,21 +47,20 @@ export const execute = async (interaction: CommandInteraction) => {
   const entry =
     type === 'task'
       ? await prisma.task.findFirst({
-          where: {
-            id: parseInt(id),
-            guildId: guildData.guildId,
-          },
+          where: { id, guildId: guildData.guildId },
         })
       : await prisma.concept.findFirst({
-          where: {
-            id: parseInt(id),
-            guildId: guildData.guildId,
-          },
+          where: { id, guildId: guildData.guildId },
         });
 
   if (!entry) {
     return await interaction.reply({
-      embeds: [errorEmbed(`${capitalizeFirstLetter(type)} not found!`)],
+      embeds: [
+        errorEmbed(
+          `${capitalizeFirstLetter(type)} not found!`,
+          'Please provide a valid ID.'
+        ),
+      ],
       ephemeral: true,
     });
   }
@@ -72,25 +68,15 @@ export const execute = async (interaction: CommandInteraction) => {
   try {
     if (type === 'task') {
       await prisma.task.update({
-        where: {
-          id: parseInt(id),
-        },
-        data: {
-          title: title,
-          description: description,
-        },
+        where: { id },
+        data: { title: title, description: description },
       });
 
       await sendTasksEmbed();
     } else {
       await prisma.concept.update({
-        where: {
-          id: parseInt(id),
-        },
-        data: {
-          title: title,
-          description: description,
-        },
+        where: { id },
+        data: { title: title, description: description },
       });
 
       await sendConceptsEmbed();
@@ -98,7 +84,10 @@ export const execute = async (interaction: CommandInteraction) => {
 
     return await interaction.reply({
       embeds: [
-        successEmbed(`${capitalizeFirstLetter(type)} has been updated!`),
+        successEmbed(
+          `${capitalizeFirstLetter(type)} updated!`,
+          `You have updated the ${type}.`
+        ),
       ],
       ephemeral: true,
     });
@@ -119,7 +108,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName('type')
-      .setDescription('The type of entry to update.')
+      .setDescription('Type of the entry.')
       .setRequired(true)
       .addChoices([
         { name: 'Task', value: 'task' },
@@ -127,20 +116,17 @@ export const data = new SlashCommandBuilder()
       ])
   )
   .addStringOption((option) =>
-    option
-      .setName('id')
-      .setDescription('The ID of the entry to update.')
-      .setRequired(true)
+    option.setName('id').setDescription('ID of the entry.').setRequired(true)
   )
   .addStringOption((option) =>
     option
       .setName('title')
-      .setDescription('The title of the entry to update.')
+      .setDescription('Title of the entry.')
       .setRequired(false)
   )
   .addStringOption((option) =>
     option
       .setName('description')
-      .setDescription('The description of the entry to update.')
+      .setDescription('Description of the entry.')
       .setRequired(false)
   );

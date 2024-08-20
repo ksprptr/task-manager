@@ -3,7 +3,7 @@ import { getGuildData } from './global-functions';
 import { getConceptsEmbed, getTasksEmbed } from './embed-functions';
 
 /**
- * Function to get tasks channel by id
+ * Function to get tasks channel
  */
 const getTasksChannel = async () => {
   const guildData = await getGuildData();
@@ -19,7 +19,7 @@ const getTasksChannel = async () => {
 };
 
 /**
- * Function to get concepts channel by id
+ * Function to get concepts channel
  */
 const getConceptsChannel = async () => {
   const guildData = await getGuildData();

@@ -1,7 +1,6 @@
 import prisma from '../../utils/prisma/prisma-client';
 import { Status } from '@prisma/client';
 import { getGuildData } from '../../utils/functions/global-functions';
-import { defaultErrorEmbed } from '../../utils/data/embed-data';
 import {
   errorEmbed,
   successEmbed,
@@ -10,6 +9,10 @@ import {
   sendTasksEmbed,
   sendConceptsEmbed,
 } from '../../utils/functions/channel-functions';
+import {
+  defaultErrorEmbed,
+  tasksChannelMissingEmbed,
+} from '../../utils/data/embed-data';
 import {
   CommandInteraction,
   SlashCommandBuilder,
@@ -27,30 +30,30 @@ export const execute = async (interaction: CommandInteraction) => {
   const guildData = await getGuildData();
 
   if (!guildData) return;
+  if (!guildData.tasksChannelId) {
+    return await interaction.reply({
+      embeds: [tasksChannelMissingEmbed],
+      ephemeral: true,
+    });
+  }
 
   const concept = await prisma.concept.findFirst({
-    where: {
-      id: parseInt(id),
-      guildId: guildData.guildId,
-    },
+    where: { id, guildId: guildData.guildId },
   });
 
   if (!concept) {
     return await interaction.reply({
-      embeds: [errorEmbed('Concept not found!')],
+      embeds: [errorEmbed('Concept not found!', 'Please provide a valid ID.')],
       ephemeral: true,
     });
   }
 
   try {
-    await prisma.concept.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
+    await prisma.concept.delete({ where: { id } });
 
     await prisma.task.create({
       data: {
+        id: concept.id,
         guildId: guildData.guildId,
         title: concept.title,
         description: concept.description,
@@ -62,7 +65,12 @@ export const execute = async (interaction: CommandInteraction) => {
     await sendConceptsEmbed();
 
     return await interaction.reply({
-      embeds: [successEmbed('Concept has been opened as a new task!')],
+      embeds: [
+        successEmbed(
+          'Concept changed!',
+          'You have changed and opened the concept as a new task.'
+        ),
+      ],
     });
   } catch (error) {
     console.error(error);
@@ -77,6 +85,6 @@ export const data = new SlashCommandBuilder()
   .setName('open')
   .setDescription('Open a concept as a new task.')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-  .addNumberOption((option) =>
+  .addStringOption((option) =>
     option.setName('id').setDescription('ID of the concept.').setRequired(true)
   );

@@ -1,11 +1,15 @@
 import prisma from '../../utils/prisma/prisma-client';
 import { Status } from '@prisma/client';
 import { successEmbed } from '../../utils/functions/embed-functions';
-import { getGuildData } from '../../utils/functions/global-functions';
 import {
   sendTasksEmbed,
   sendConceptsEmbed,
 } from '../../utils/functions/channel-functions';
+import {
+  generateId,
+  getGuildData,
+  capitalizeFirstLetter,
+} from '../../utils/functions/global-functions';
 import {
   CommandInteraction,
   SlashCommandBuilder,
@@ -25,14 +29,11 @@ export const execute = async (interaction: CommandInteraction) => {
   const title = interaction.options.get('title')?.value?.toString();
   const description = interaction.options.get('description')?.value?.toString();
 
-  if (!type || !title || !description) {
-    return;
-  }
+  if (!type || !title || !description) return;
 
   const guildData = await getGuildData();
 
   if (!guildData) return;
-
   if (
     type === 'task' ? !guildData.tasksChannelId : !guildData.conceptsChannelId
   ) {
@@ -47,9 +48,12 @@ export const execute = async (interaction: CommandInteraction) => {
   }
 
   try {
+    const id = await generateId();
+
     if (type === 'task') {
       await prisma.task.create({
         data: {
+          id,
           guildId: guildData.guildId,
           title,
           description,
@@ -60,18 +64,19 @@ export const execute = async (interaction: CommandInteraction) => {
       await sendTasksEmbed();
     } else {
       await prisma.concept.create({
-        data: {
-          guildId: guildData.guildId,
-          title,
-          description,
-        },
+        data: { id, guildId: guildData.guildId, title, description },
       });
 
       await sendConceptsEmbed();
     }
 
     return await interaction.reply({
-      embeds: [successEmbed(`${type} has been created!`)],
+      embeds: [
+        successEmbed(
+          `${capitalizeFirstLetter(type)} created!`,
+          `You have created a new ${type}.`
+        ),
+      ],
       ephemeral: true,
     });
   } catch (error) {

@@ -1,4 +1,5 @@
 import path from 'path';
+import prisma from '../prisma/prisma-client';
 import { localGuild } from '../types/global-types';
 import { readdirSync, statSync } from 'fs';
 

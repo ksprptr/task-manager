@@ -1,5 +1,5 @@
 import { getData } from '../../utils/functions/global-functions';
-import { errorEmbed } from '../../utils/functions/embed-functions';
+import { defaultErrorEmbed } from '../../utils/data/embed-data';
 import { Event as EventType } from '../../utils/types/global-types';
 import { Events, Interaction } from 'discord.js';
 
@@ -23,9 +23,7 @@ const execute = async (interaction: Interaction) => {
     console.error(error);
 
     return interaction.reply({
-      embeds: [
-        errorEmbed('Error occurred!', 'See the console for more information.'),
-      ],
+      embeds: [defaultErrorEmbed],
       ephemeral: true,
     });
   }

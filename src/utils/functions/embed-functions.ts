@@ -43,7 +43,7 @@ export const normalEmbed = (
   const embed = new EmbedBuilder({
     title: title,
     description: description,
-  }).setColor(Colors.Purple);
+  }).setColor(Colors.Blurple);
 
   if (timeStamp) embed.setTimestamp();
   if (fields) fields.forEach((field) => embed.addFields(field));

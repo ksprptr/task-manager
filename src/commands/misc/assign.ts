@@ -32,7 +32,7 @@ export const execute = async (interaction: CommandInteraction) => {
       embeds: [
         errorEmbed(
           'Cannot assign the task!',
-          'Task is not open or is already assigned!'
+          'Task is not open or is already assigned.'
         ),
       ],
       ephemeral: true,

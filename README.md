@@ -1,31 +1,30 @@
 # Task Manager
 
-Simple discord bot handling tasks for school project.
+> A simple Discord bot designed to help manage tasks and automate small features for a school project.
 
-## Dependencies
+- [Prerequisites](#Prerequisites)
+- [Installation](#Installation)
+- [Run](#Run)
+- [License](#License)
 
-[Node.js](https://nodejs.org/en) version `18 or later..`
+## Prerequisites
 
-[pnpm](https://pnpm.io/installation) version `8 or later..`
+- Knowledge of JavaScript/TypeScript, [Discord.js](https://discord.js.org/), Git
+- IDE ([VS Code](https://code.visualstudio.com/), WebStorm, ...)
+- Package manager ([pnpm](https://pnpm.io/installation), npm, ...)
 
 ## Installation
 
-Go to the project folder
+- Go to the project folder using `cd task-manager/`
+- Install all dependecies using `pnpm install`
+- Copy `.env.example` to `.env` and update the properties accordingly
 
-```bash
-cd task-manager/
-```
+## Run
 
-Install all dependencies
+- Development server: `pnpm run dev`
+- Production: `pnpm run build & pnpm run start`
 
-```bash
-pnpm install
-```
+## License
 
-Start the bot
-
-```bash
-pnpm run dev
-```
-
-Check out the discord server to see how the bot works.
+> This software is developed by **Petr Kašpar** and is licensed under the MIT License.  
+> For more details, please refer to the [LICENSE](./LICENSE) file.

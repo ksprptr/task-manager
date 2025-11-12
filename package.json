@@ -1,7 +1,10 @@
 {
   "name": "task-manager",
   "version": "1.0.0",
-  "description": "Simple discord bot handling tasks for school project.",
+  "description": "A simple Discord bot designed to help manage tasks and automate small features for a school project.",
+  "private": true,
+  "author": "Petr Kašpar",
+  "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
@@ -13,14 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kasparrpetr/task-manager.git"
+    "url": "git+https://github.com/ksprptr/task-manager.git"
   },
-  "author": "kasparrpetr",
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kasparrpetr/task-manager/issues"
+    "url": "https://github.com/ksprptr/task-manager/issues"
   },
-  "homepage": "https://github.com/kasparrpetr/task-manager#readme",
+  "homepage": "https://github.com/ksprptr/task-manager#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.2.0",
     "eslint": "^8",
